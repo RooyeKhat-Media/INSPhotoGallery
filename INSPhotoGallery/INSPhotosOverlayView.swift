@@ -163,8 +163,9 @@ open class INSPhotosOverlayView: UIView , INSPhotosOverlayViewable {
     private func setupCaptionLabel() {
         captionLabel = UILabel()
         captionLabel.translatesAutoresizingMaskIntoConstraints = false
-        captionLabel.backgroundColor = UIColor.clear
+        captionLabel.backgroundColor = UIColor.white.withAlphaComponent(0.2)
         captionLabel.numberOfLines = 0
+        captionLabel.textColor = UIColor.white
         addSubview(captionLabel)
         
         let bottomConstraint = NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: captionLabel, attribute: .bottom, multiplier: 1.0, constant: 8.0)

@@ -190,7 +190,7 @@ open class INSPhotosViewController: UIViewController, UIPageViewControllerDataSo
         overlayView.view().autoresizingMask = [.flexibleWidth, .flexibleHeight]
         overlayView.view().frame = view.bounds
         view.addSubview(overlayView.view())
-        overlayView.setHidden(true, animated: false)
+        overlayView.setHidden(false, animated: false)
     }
     
     private func setupPageViewControllerWithInitialPhoto(_ initialPhoto: INSPhotoViewable? = nil) {
