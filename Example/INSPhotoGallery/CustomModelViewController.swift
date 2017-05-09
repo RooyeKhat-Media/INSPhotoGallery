@@ -48,7 +48,7 @@ extension CustomModelViewController: UICollectionViewDataSource, UICollectionVie
         let downloadMainView = UIView()
         let deleteView = UIView()
         deleteView.frame = CGRect(x: 320, y: 610, width: 50, height: 50)
-
+        downloadMainView.backgroundColor = UIColor.red
         let galleryPreview = INSPhotosViewController(photos: photos, initialPhoto: currentPhoto, referenceView: cell  , deleteView:  deleteView , downloadView: downloadMainView)
         galleryPreview.referenceViewForPhotoWhenDismissingHandler = { [weak self] photo in
             if let index = self?.photos.index(where: {$0 === photo}) {

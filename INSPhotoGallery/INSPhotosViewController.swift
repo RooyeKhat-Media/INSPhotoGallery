@@ -99,7 +99,7 @@ open class INSPhotosViewController: UIViewController, UIPageViewControllerDataSo
     private var statusBarHidden = false
     private var shouldHandleLongPressGesture = false
     //private var haveDownload : Bool = false
-    private var downloadView: UIView?
+    private var downloadMainView: UIView?
     open weak  var deleteMainView: UIView?
     // MARK: - Initialization
     
@@ -132,10 +132,11 @@ open class INSPhotosViewController: UIViewController, UIPageViewControllerDataSo
     public init(photos: [INSPhotoViewable], initialPhoto: INSPhotoViewable? = nil, referenceView: UIView? = nil , deleteView: UIView? = nil , downloadView: UIView? = nil) {
         dataSource = INSPhotosDataSource(photos: photos)
         super.init(nibName: nil, bundle: nil)
-        self.downloadView = downloadView!
+        self.downloadMainView = downloadView
         self.deleteMainView = deleteView
         initialSetupWithInitialPhoto(initialPhoto)
         transitionAnimator.startingView = referenceView
+        currentPhotoViewController?.scalingImageView.hasdownloadView = downloadView
         transitionAnimator.endingView = currentPhotoViewController?.scalingImageView.imageView
         currentPhotoViewController?.downloadView = downloadView
         
@@ -295,7 +296,7 @@ open class INSPhotosViewController: UIViewController, UIPageViewControllerDataSo
 
     private func initializePhotoViewControllerForPhoto(_ photo: INSPhotoViewable) -> INSPhotoViewController {
         let photoViewController = INSPhotoViewController(photo: photo)
-        photoViewController.downloadView = downloadView
+        photoViewController.downloadView = downloadMainView
         singleTapGestureRecognizer.require(toFail: photoViewController.doubleTapGestureRecognizer)
         photoViewController.longPressGestureHandler = { [weak self] gesture in
             guard let weakSelf = self else {
@@ -344,7 +345,7 @@ open class INSPhotosViewController: UIViewController, UIPageViewControllerDataSo
         if completed {
             updateCurrentPhotosInformation()
             if let currentPhotoViewController = currentPhotoViewController {
-                currentPhotoViewController.downloadView = downloadView
+                currentPhotoViewController.downloadView = downloadMainView
                 navigateToPhotoHandler?(currentPhotoViewController.photo)
             }
         }

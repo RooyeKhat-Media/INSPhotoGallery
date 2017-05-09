@@ -109,8 +109,13 @@ class INSScalingImageView: UIScrollView {
         self.contentSize = size
         if image?.size != CGSize.zero {
         if hasdownloadView != nil {
+            let downloadSecendView = UIView()
+            downloadSecendView.frame = CGRect(origin: CGPoint.zero, size: size)
+            downloadSecendView.backgroundColor = hasdownloadView?.backgroundColor
             downloadIndicatorMainView.frame = CGRect(origin: CGPoint.zero, size: size)
             imageView.addSubview(downloadIndicatorMainView)
+            downloadIndicatorMainView.addSubview(downloadSecendView)
+
             }
         }
         
@@ -120,10 +125,13 @@ class INSScalingImageView: UIScrollView {
     
     private func setupDownloadView() {
         downloadIndicatorMainView = UIView()
-        downloadIndicatorMainView.backgroundColor = UIColor.clear
+        let size = image?.size ?? CGSize.zero
+        downloadIndicatorMainView.frame = CGRect(origin: CGPoint.zero, size: size)
+        downloadIndicatorMainView.backgroundColor = UIColor.red
         addSubview(downloadIndicatorMainView)
 
     }
+   
     
     
     private func updateZoomScale() {
