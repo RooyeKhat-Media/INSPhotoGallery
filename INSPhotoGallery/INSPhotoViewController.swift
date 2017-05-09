@@ -55,14 +55,17 @@ open class INSPhotoViewController: UIViewController, UIScrollViewDelegate {
     }
     
     deinit {
-        scalingImageView.delegate = nil
+       // scalingImageView.delegate = nil
     }
-    
+    var downloadView:UIView?
     open override func viewDidLoad() {
         super.viewDidLoad()
         
         scalingImageView.delegate = self
         scalingImageView.frame = view.bounds
+        if let downloadMainView = downloadView {
+        scalingImageView.hasdownloadView = downloadMainView
+        }
         scalingImageView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         view.addSubview(scalingImageView)
         
@@ -90,6 +93,9 @@ open class INSPhotoViewController: UIViewController, UIScrollViewDelegate {
     open override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         scalingImageView.frame = view.bounds
+        if let downloadMainView = downloadView {
+        scalingImageView.hasdownloadView = downloadMainView
+        }
     }
     
     private func loadThumbnailImage() {

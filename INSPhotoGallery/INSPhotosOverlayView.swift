@@ -21,8 +21,8 @@ import UIKit
 
 public protocol INSPhotosOverlayViewable:class {
     weak var photosViewController: INSPhotosViewController? { get set }
-    
     func populateWithPhoto(_ photo: INSPhotoViewable)
+    func setupDeleteView( _ deleteView : UIView)
     func setHidden(_ hidden: Bool, animated: Bool)
     func view() -> UIView
 }
@@ -36,9 +36,9 @@ extension INSPhotosOverlayViewable where Self: UIView {
 open class INSPhotosOverlayView: UIView , INSPhotosOverlayViewable {
     open private(set) var navigationBar: UINavigationBar!
     open private(set) var captionLabel: UILabel!
-    
     open private(set) var navigationItem: UINavigationItem!
     open weak var photosViewController: INSPhotosViewController?
+    open weak var deleteMainView: UIView?
     private var currentPhoto: INSPhotoViewable?
     
     var leftBarButtonItem: UIBarButtonItem? {
@@ -62,6 +62,7 @@ open class INSPhotosOverlayView: UIView , INSPhotosOverlayViewable {
         setupNavigationBar()
         setupCaptionLabel()
     }
+    
     
     required public init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -113,7 +114,13 @@ open class INSPhotosOverlayView: UIView , INSPhotosOverlayViewable {
                 navigationItem.title = String(format:NSLocalizedString("%d of %d",comment:""), index+1, photosViewController.dataSource.numberOfPhotos)
             }
             captionLabel.attributedText = photo.attributedTitle
+            
         }
+    }
+    
+    open  func setupDeleteView( _ deleteView : UIView) {
+        self.deleteMainView = deleteView
+        setupDeleteButton(deleteView)
     }
     
     @objc private func closeButtonTapped(_ sender: UIBarButtonItem) {
@@ -163,14 +170,18 @@ open class INSPhotosOverlayView: UIView , INSPhotosOverlayViewable {
     private func setupCaptionLabel() {
         captionLabel = UILabel()
         captionLabel.translatesAutoresizingMaskIntoConstraints = false
-        captionLabel.backgroundColor = UIColor.white.withAlphaComponent(0.2)
         captionLabel.numberOfLines = 0
-        captionLabel.textColor = UIColor.white
         addSubview(captionLabel)
         
         let bottomConstraint = NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: captionLabel, attribute: .bottom, multiplier: 1.0, constant: 8.0)
         let leadingConstraint = NSLayoutConstraint(item: captionLabel, attribute: .leading, relatedBy: .equal, toItem: self, attribute: .leading, multiplier: 1.0, constant: 8.0)
         let trailingConstraint = NSLayoutConstraint(item: captionLabel, attribute: .trailing, relatedBy: .equal, toItem: self, attribute: .trailing, multiplier: 1.0, constant: 8.0)
         self.addConstraints([bottomConstraint,leadingConstraint,trailingConstraint])
+    }
+    private func setupDeleteButton(_ deleteView: UIView) {
+        deleteView.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(deleteView)
+        
+
     }
 }

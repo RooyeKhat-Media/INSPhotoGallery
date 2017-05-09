@@ -45,8 +45,11 @@ extension CustomModelViewController: UICollectionViewDataSource, UICollectionVie
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let cell = collectionView.cellForItem(at: indexPath) as! ExampleCollectionViewCell
         let currentPhoto = photos[(indexPath as NSIndexPath).row]
-        let galleryPreview = INSPhotosViewController(photos: photos, initialPhoto: currentPhoto, referenceView: cell)
+        let downloadMainView = UIView()
+        let deleteView = UIView()
+        deleteView.frame = CGRect(x: 320, y: 610, width: 50, height: 50)
 
+        let galleryPreview = INSPhotosViewController(photos: photos, initialPhoto: currentPhoto, referenceView: cell  , deleteView:  deleteView , downloadView: downloadMainView)
         galleryPreview.referenceViewForPhotoWhenDismissingHandler = { [weak self] photo in
             if let index = self?.photos.index(where: {$0 === photo}) {
                 let indexPath = IndexPath(item: index, section: 0)

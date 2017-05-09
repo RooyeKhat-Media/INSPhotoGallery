@@ -36,7 +36,6 @@ extension UIView {
             snapshotedView.layer.masksToBounds = layer.masksToBounds
             snapshotedView.contentMode = contentMode
             snapshotedView.transform = transform
-            
             return snapshotedView
         } else {
             return snapshotView(afterScreenUpdates: true)!

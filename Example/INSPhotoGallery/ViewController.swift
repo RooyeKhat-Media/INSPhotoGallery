@@ -30,10 +30,11 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         collectionView.delegate = self
         collectionView.dataSource = self
-        
+        let downloadView = UIView(frame: CGRect(x: 50, y: 50, width: 50, height: 50))
+        downloadView.backgroundColor = UIColor.red
         for photo in photos {
             if let photo = photo as? INSPhoto {
-                photo.attributedTitle = NSAttributedString(string: "Example caption text\ncaption text", attributes: [NSForegroundColorAttributeName: UIColor.white])
+                photo.attributedTitle = NSAttributedString(string: "Example tgtgtgtgt text\ncaption text", attributes: [NSForegroundColorAttributeName: UIColor.white])
             }
         }
     }

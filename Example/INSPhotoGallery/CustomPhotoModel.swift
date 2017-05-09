@@ -23,6 +23,7 @@ class CustomPhotoModel: NSObject, INSPhotoViewable {
     
     init(image: UIImage?, thumbnailImage: UIImage?) {
         self.image = image
+        
         self.thumbnailImage = thumbnailImage
     }
     

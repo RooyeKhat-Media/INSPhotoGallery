@@ -36,12 +36,15 @@ class INSScalingImageView: UIScrollView {
         self.addSubview(imageView)
         return imageView
     }()
+    open private(set) var downloadIndicatorMainView: UIView!
     
+    var hasdownloadView: UIView?
     var image: UIImage? {
         didSet {
             updateImage(image)
         }
     }
+    
     
     override var frame: CGRect {
         didSet {
@@ -54,12 +57,14 @@ class INSScalingImageView: UIScrollView {
         super.init(frame: frame)
         setupImageScrollView()
         updateZoomScale()
+        setupDownloadView()
     }
 
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         setupImageScrollView()
         updateZoomScale()
+        setupDownloadView()
     }
     
     override func didAddSubview(_ subview: UIView) {
@@ -102,10 +107,24 @@ class INSScalingImageView: UIScrollView {
         imageView.image = image
         imageView.frame = CGRect(origin: CGPoint.zero, size: size)
         self.contentSize = size
+        if image?.size != CGSize.zero {
+        if hasdownloadView != nil {
+            downloadIndicatorMainView.frame = CGRect(origin: CGPoint.zero, size: size)
+            imageView.addSubview(downloadIndicatorMainView)
+            }
+        }
         
         updateZoomScale()
         centerScrollViewContents()
     }
+    
+    private func setupDownloadView() {
+        downloadIndicatorMainView = UIView()
+        downloadIndicatorMainView.backgroundColor = UIColor.clear
+        addSubview(downloadIndicatorMainView)
+
+    }
+    
     
     private func updateZoomScale() {
         if let image = imageView.image {

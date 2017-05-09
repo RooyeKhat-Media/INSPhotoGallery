@@ -98,7 +98,9 @@ open class INSPhotosViewController: UIViewController, UIPageViewControllerDataSo
     private var interactiveDismissal: Bool = false
     private var statusBarHidden = false
     private var shouldHandleLongPressGesture = false
-    
+    //private var haveDownload : Bool = false
+    private var downloadView: UIView?
+    open weak  var deleteMainView: UIView?
     // MARK: - Initialization
     
     deinit {
@@ -127,12 +129,16 @@ open class INSPhotosViewController: UIViewController, UIPageViewControllerDataSo
      
      - returns: A fully initialized object.
      */
-    public init(photos: [INSPhotoViewable], initialPhoto: INSPhotoViewable? = nil, referenceView: UIView? = nil) {
+    public init(photos: [INSPhotoViewable], initialPhoto: INSPhotoViewable? = nil, referenceView: UIView? = nil , deleteView: UIView? = nil , downloadView: UIView? = nil) {
         dataSource = INSPhotosDataSource(photos: photos)
         super.init(nibName: nil, bundle: nil)
+        self.downloadView = downloadView!
+        self.deleteMainView = deleteView
         initialSetupWithInitialPhoto(initialPhoto)
         transitionAnimator.startingView = referenceView
         transitionAnimator.endingView = currentPhotoViewController?.scalingImageView.imageView
+        currentPhotoViewController?.downloadView = downloadView
+        
     }
     
     private func initialSetupWithInitialPhoto(_ initialPhoto: INSPhotoViewable? = nil) {
@@ -190,12 +196,13 @@ open class INSPhotosViewController: UIViewController, UIPageViewControllerDataSo
         overlayView.view().autoresizingMask = [.flexibleWidth, .flexibleHeight]
         overlayView.view().frame = view.bounds
         view.addSubview(overlayView.view())
-        overlayView.setHidden(false, animated: false)
+        overlayView.setHidden(true, animated: false)
     }
     
     private func setupPageViewControllerWithInitialPhoto(_ initialPhoto: INSPhotoViewable? = nil) {
         pageViewController = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal, options: [UIPageViewControllerOptionInterPageSpacingKey: 16.0])
         pageViewController.view.backgroundColor = UIColor.clear
+        
         pageViewController.delegate = self
         pageViewController.dataSource = self
         
@@ -209,6 +216,9 @@ open class INSPhotosViewController: UIViewController, UIPageViewControllerDataSo
     private func updateCurrentPhotosInformation() {
         if let currentPhoto = currentPhoto {
             overlayView.populateWithPhoto(currentPhoto)
+            if let deleteView = deleteMainView {
+            overlayView.setupDeleteView(deleteView)
+            }
         }
     }
     
@@ -285,6 +295,7 @@ open class INSPhotosViewController: UIViewController, UIPageViewControllerDataSo
 
     private func initializePhotoViewControllerForPhoto(_ photo: INSPhotoViewable) -> INSPhotoViewController {
         let photoViewController = INSPhotoViewController(photo: photo)
+        photoViewController.downloadView = downloadView
         singleTapGestureRecognizer.require(toFail: photoViewController.doubleTapGestureRecognizer)
         photoViewController.longPressGestureHandler = { [weak self] gesture in
             guard let weakSelf = self else {
@@ -333,6 +344,7 @@ open class INSPhotosViewController: UIViewController, UIPageViewControllerDataSo
         if completed {
             updateCurrentPhotosInformation()
             if let currentPhotoViewController = currentPhotoViewController {
+                currentPhotoViewController.downloadView = downloadView
                 navigateToPhotoHandler?(currentPhotoViewController.photo)
             }
         }
