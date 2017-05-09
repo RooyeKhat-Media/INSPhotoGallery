@@ -127,7 +127,6 @@ class INSScalingImageView: UIScrollView {
         downloadIndicatorMainView = UIView()
         let size = image?.size ?? CGSize.zero
         downloadIndicatorMainView.frame = CGRect(origin: CGPoint.zero, size: size)
-        downloadIndicatorMainView.backgroundColor = UIColor.red
         addSubview(downloadIndicatorMainView)
 
     }
