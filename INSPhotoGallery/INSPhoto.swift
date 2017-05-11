@@ -41,7 +41,6 @@ import UIKit
     var thumbnailImageURL: URL?
     
     @objc open var attributedTitle: NSAttributedString?
-    
     public init(image: UIImage?, thumbnailImage: UIImage?) {
         self.image = image
         self.thumbnailImage = thumbnailImage
@@ -74,7 +73,6 @@ import UIKit
     
     open func loadImageWithURL(_ url: URL?, completion: @escaping (_ image: UIImage?, _ error: Error?) -> ()) {
         let session = URLSession(configuration: URLSessionConfiguration.default)
-        
         if let imageURL = url {
             session.dataTask(with: imageURL, completionHandler: { (response, data, error) in
                 DispatchQueue.main.async(execute: { () -> Void in

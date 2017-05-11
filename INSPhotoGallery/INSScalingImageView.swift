@@ -57,14 +57,12 @@ class INSScalingImageView: UIScrollView {
         super.init(frame: frame)
         setupImageScrollView()
         updateZoomScale()
-        setupDownloadView()
     }
 
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         setupImageScrollView()
         updateZoomScale()
-        setupDownloadView()
     }
     
     override func didAddSubview(_ subview: UIView) {
@@ -100,37 +98,17 @@ class INSScalingImageView: UIScrollView {
         self.contentInset = UIEdgeInsetsMake(verticalInset, horizontalInset, verticalInset, horizontalInset);
     }
     
-    private func updateImage(_ image: UIImage?) {
+    open func updateImage(_ image: UIImage?) {
         let size = image?.size ?? CGSize.zero
         
         imageView.transform = CGAffineTransform.identity
         imageView.image = image
         imageView.frame = CGRect(origin: CGPoint.zero, size: size)
         self.contentSize = size
-        if image?.size != CGSize.zero {
-        if hasdownloadView != nil {
-            let downloadSecendView = UIView()
-            downloadSecendView.frame = CGRect(origin: CGPoint.zero, size: size)
-            downloadSecendView.backgroundColor = hasdownloadView?.backgroundColor
-            downloadIndicatorMainView.frame = CGRect(origin: CGPoint.zero, size: size)
-            imageView.addSubview(downloadIndicatorMainView)
-            downloadIndicatorMainView.addSubview(downloadSecendView)
-
-            }
-        }
-        
         updateZoomScale()
         centerScrollViewContents()
     }
-    
-    private func setupDownloadView() {
-        downloadIndicatorMainView = UIView()
-        let size = image?.size ?? CGSize.zero
-        downloadIndicatorMainView.frame = CGRect(origin: CGPoint.zero, size: size)
-        addSubview(downloadIndicatorMainView)
 
-    }
-   
     
     
     private func updateZoomScale() {

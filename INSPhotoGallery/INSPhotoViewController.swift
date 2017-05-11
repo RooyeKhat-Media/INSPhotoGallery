@@ -55,21 +55,51 @@ open class INSPhotoViewController: UIViewController, UIScrollViewDelegate {
     }
     
     deinit {
-       // scalingImageView.delegate = nil
+        scalingImageView.delegate = nil
     }
+    
+    open private(set) var downloadIndicatorMainView: UIView!
+    
     var downloadView:UIView?
+    
+
+
+    
     open override func viewDidLoad() {
         super.viewDidLoad()
-        
         scalingImageView.delegate = self
         scalingImageView.frame = view.bounds
         if let downloadMainView = downloadView {
         scalingImageView.hasdownloadView = downloadMainView
         }
+        
         scalingImageView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         view.addSubview(scalingImageView)
-        
-        view.addSubview(activityIndicator)
+        setupDownloadView()
+        if let download = downloadView {
+            let downloadSecendView = UIView()
+            downloadSecendView.frame = view.bounds
+            downloadSecendView.backgroundColor = download.backgroundColor
+            downloadSecendView.alpha = 0.2
+            downloadIndicatorMainView.frame = view.bounds
+            downloadIndicatorMainView.backgroundColor = UIColor.clear
+            downloadIndicatorMainView.addSubview(downloadSecendView)
+        }
+        if downloadView == nil {
+            if let image = photo.image {
+                self.scalingImageView.image = image
+                self.activityIndicator.stopAnimating()
+            } else if let thumbnailImage = photo.thumbnailImage {
+                self.scalingImageView.image = thumbnailImage
+                self.activityIndicator.stopAnimating()
+                loadFullSizeImage()
+            } else {
+                loadThumbnailImage()
+            }
+
+        }
+
+        //view.addSubview(activityIndicator)
         activityIndicator.center = CGPoint(x: view.bounds.midX, y: view.bounds.midY)
         activityIndicator.autoresizingMask = [.flexibleTopMargin, .flexibleLeftMargin, .flexibleRightMargin, .flexibleBottomMargin]
         activityIndicator.sizeToFit()
@@ -77,18 +107,39 @@ open class INSPhotoViewController: UIViewController, UIScrollViewDelegate {
         view.addGestureRecognizer(doubleTapGestureRecognizer)
         view.addGestureRecognizer(longPressGestureRecognizer)
         
-        if let image = photo.image {
-            self.scalingImageView.image = image
-            self.activityIndicator.stopAnimating()
-        } else if let thumbnailImage = photo.thumbnailImage {
-            self.scalingImageView.image = thumbnailImage
-            self.activityIndicator.stopAnimating()
-            loadFullSizeImage()
-        } else {
-            loadThumbnailImage()
-        }
-
+       
     }
+    
+    
+    private func setupDownloadView() {
+        downloadIndicatorMainView = UIView()
+        downloadIndicatorMainView.frame = view.bounds
+        downloadIndicatorMainView.backgroundColor = UIColor.clear
+        view.addSubview(downloadIndicatorMainView)
+        
+    }
+
+    
+    func handleDownloadViewWhenHide() {
+            downloadIndicatorMainView?.isHidden = true
+            view.sendSubview(toBack: downloadIndicatorMainView!)
+            if let image = photo.image {
+                self.scalingImageView.image = image
+                self.activityIndicator.stopAnimating()
+            } else if let thumbnailImage = photo.thumbnailImage {
+                self.scalingImageView.image = thumbnailImage
+                self.activityIndicator.stopAnimating()
+                loadFullSizeImage()
+            } else {
+                loadThumbnailImage()
+            }
+
+            //let thisImage = UIImage(named:"trash")
+//            self.scalingImageView.image = thisImage
+            
+    }
+   
+
     
     open override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
@@ -96,6 +147,9 @@ open class INSPhotoViewController: UIViewController, UIScrollViewDelegate {
         if let downloadMainView = downloadView {
         scalingImageView.hasdownloadView = downloadMainView
         }
+        downloadView?.frame = view.bounds
+        
+
     }
     
     private func loadThumbnailImage() {

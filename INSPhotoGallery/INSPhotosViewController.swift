@@ -23,6 +23,7 @@ public typealias INSPhotosViewControllerReferenceViewHandler = (_ photo: INSPhot
 public typealias INSPhotosViewControllerNavigateToPhotoHandler = (_ photo: INSPhotoViewable) -> ()
 public typealias INSPhotosViewControllerDismissHandler = (_ viewController: INSPhotosViewController) -> ()
 public typealias INSPhotosViewControllerLongPressHandler = (_ photo: INSPhotoViewable, _ gestureRecognizer: UILongPressGestureRecognizer) -> (Bool)
+public typealias INSPhotosViewControllerAccessCurrentPhotoViewHanlder = (_ photo: INSPhotoViewable) -> ()
 
 
 open class INSPhotosViewController: UIViewController, UIPageViewControllerDataSource, UIPageViewControllerDelegate, UIViewControllerTransitioningDelegate {
@@ -39,7 +40,10 @@ open class INSPhotosViewController: UIViewController, UIPageViewControllerDataSo
     
     /*
      * Called before INSPhotosViewController will start a user-initiated dismissal.
+     
      */
+    open var accessToCurrentPhotoDetailHandler:INSPhotosViewControllerAccessCurrentPhotoViewHanlder?
+    
     open var willDismissHandler: INSPhotosViewControllerDismissHandler?
     
     /*
@@ -160,15 +164,24 @@ open class INSPhotosViewController: UIViewController, UIPageViewControllerDataSo
             overlayView.titleTextAttributes = [NSForegroundColorAttributeName: textColor]
         }
     }
+    open func hiddenDownloadView() {
+        currentPhotoViewController?.handleDownloadViewWhenHide()
+        
+        
+    }
+    
+    open func accessCurrentPhotoDetail() -> INSPhotoViewable {
+        return currentPhoto!
+    }
     
     // MARK: - View Life Cycle
-
+open private(set) var downloadIndicatorMainView: UIView!
     override open func viewDidLoad() {
         super.viewDidLoad()
         view.tintColor = UIColor.white
         view.backgroundColor = UIColor.black
         pageViewController.view.backgroundColor = UIColor.clear
-        
+       
         pageViewController.view.addGestureRecognizer(panGestureRecognizer)
         pageViewController.view.addGestureRecognizer(singleTapGestureRecognizer)
         
@@ -179,6 +192,14 @@ open class INSPhotosViewController: UIViewController, UIPageViewControllerDataSo
         
         setupOverlayView()
     }
+        private func setupDownloadView() {
+            downloadIndicatorMainView = UIView()
+            downloadIndicatorMainView.frame = view.bounds
+            downloadIndicatorMainView.backgroundColor = UIColor.clear
+            view.addSubview(downloadIndicatorMainView)
+            
+        }
+
     
     open override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -220,6 +241,7 @@ open class INSPhotosViewController: UIViewController, UIPageViewControllerDataSo
             if let deleteView = deleteMainView {
             overlayView.setupDeleteView(deleteView)
             }
+            accessToCurrentPhotoDetailHandler?(currentPhoto)
         }
     }
     

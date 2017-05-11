@@ -28,6 +28,13 @@ class CustomModelViewController: UIViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
     }
+    let downloadMainView = UIView()
+    
+    func handleDownloadViewTap(recognizer:UITapGestureRecognizer) {
+       if recognizer.state == .ended {
+            downloadMainView.isHidden = true
+        }
+    }
 
 }
 
@@ -45,19 +52,31 @@ extension CustomModelViewController: UICollectionViewDataSource, UICollectionVie
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let cell = collectionView.cellForItem(at: indexPath) as! ExampleCollectionViewCell
         let currentPhoto = photos[(indexPath as NSIndexPath).row]
-        let downloadMainView = UIView()
+        let thisImage = UIImage(named:"trash")
+        
+        let tap = UITapGestureRecognizer.init(target: self, action: #selector(self.handleDownloadViewTap(recognizer:)))
+        downloadMainView.addGestureRecognizer(tap)
         let deleteView = UIView()
         deleteView.frame = CGRect(x: 320, y: 610, width: 50, height: 50)
         downloadMainView.backgroundColor = UIColor.red
+        downloadMainView.alpha = 0.2
         let galleryPreview = INSPhotosViewController(photos: photos, initialPhoto: currentPhoto, referenceView: cell  , deleteView:  deleteView , downloadView: downloadMainView)
+        
         galleryPreview.referenceViewForPhotoWhenDismissingHandler = { [weak self] photo in
             if let index = self?.photos.index(where: {$0 === photo}) {
                 let indexPath = IndexPath(item: index, section: 0)
                 let cell = collectionView.cellForItem(at: indexPath) as? ExampleCollectionViewCell
+                
+                
                 return cell
             }
             return nil
         }
         present(galleryPreview, animated: true, completion: nil)
+        galleryPreview.hiddenDownloadView()
+    }
+    func handleDownloadViewTap(reconize: UIGestureRecognizer) {
+        
+      //  galleryPreview.hiddenDownloadView(thisImage!)
     }
 }
