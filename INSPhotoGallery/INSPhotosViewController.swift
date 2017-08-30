@@ -24,6 +24,7 @@ public typealias INSPhotosViewControllerNavigateToPhotoHandler = (_ photo: INSPh
 public typealias INSPhotosViewControllerDismissHandler = (_ viewController: INSPhotosViewController) -> ()
 public typealias INSPhotosViewControllerLongPressHandler = (_ photo: INSPhotoViewable, _ gestureRecognizer: UILongPressGestureRecognizer) -> (Bool)
 public typealias INSPhotosViewControllerAccessCurrentPhotoViewHanlder = (_ photo: INSPhotoViewable) -> ()
+public typealias INSPhotosViewControllerDeletePhotoHandler = (_ photo: INSPhotoViewable) -> ()
 
 
 open class INSPhotosViewController: UIViewController, UIPageViewControllerDataSource, UIPageViewControllerDelegate, UIViewControllerTransitioningDelegate {
@@ -40,10 +41,10 @@ open class INSPhotosViewController: UIViewController, UIPageViewControllerDataSo
     
     /*
      * Called before INSPhotosViewController will start a user-initiated dismissal.
-     
+
      */
     open var accessToCurrentPhotoDetailHandler:INSPhotosViewControllerAccessCurrentPhotoViewHanlder?
-    
+
     open var willDismissHandler: INSPhotosViewControllerDismissHandler?
     
     /*
@@ -56,6 +57,11 @@ open class INSPhotosViewController: UIViewController, UIPageViewControllerDataSo
      */
     open var longPressGestureHandler: INSPhotosViewControllerLongPressHandler?
     
+    /*
+     * Called when delete is tapped on a photo
+     */
+    open var deletePhotoHandler: INSPhotosViewControllerDeletePhotoHandler?
+
     /*
      * The overlay view displayed over photos, can be changed but must implement INSPhotosOverlayViewable
      */
@@ -105,6 +111,17 @@ open class INSPhotosViewController: UIViewController, UIPageViewControllerDataSo
     //private var haveDownload : Bool = false
     private var downloadMainView: UIView?
     open weak  var deleteMainView: UIView?
+
+    private func newCurrentPhotoAfterDeletion(currentPhotoIndex: Int) -> INSPhotoViewable? {
+        let previousPhotoIndex = currentPhotoIndex - 1
+        if let newCurrentPhoto = self.dataSource.photoAtIndex(currentPhotoIndex) {
+            return newCurrentPhoto
+        }else if let previousPhoto = self.dataSource.photoAtIndex(previousPhotoIndex) {
+            return previousPhoto
+        }
+        return nil
+    }
+
     // MARK: - Initialization
     
     deinit {
@@ -143,7 +160,7 @@ open class INSPhotosViewController: UIViewController, UIPageViewControllerDataSo
         currentPhotoViewController?.scalingImageView.hasdownloadView = downloadView
         transitionAnimator.endingView = currentPhotoViewController?.scalingImageView.imageView
         currentPhotoViewController?.downloadView = downloadView
-        
+
     }
     
     private func initialSetupWithInitialPhoto(_ initialPhoto: INSPhotoViewable? = nil) {
@@ -166,14 +183,14 @@ open class INSPhotosViewController: UIViewController, UIPageViewControllerDataSo
     }
     open func hiddenDownloadView() {
         currentPhotoViewController?.handleDownloadViewWhenHide()
-        
-        
+
+
     }
-    
+
     open func accessCurrentPhotoDetail() -> INSPhotoViewable {
         return currentPhoto!
     }
-    
+
     // MARK: - View Life Cycle
 open private(set) var downloadIndicatorMainView: UIView!
     override open func viewDidLoad() {
@@ -181,7 +198,7 @@ open private(set) var downloadIndicatorMainView: UIView!
         view.tintColor = UIColor.white
         view.backgroundColor = UIColor.black
         pageViewController.view.backgroundColor = UIColor.clear
-       
+
         pageViewController.view.addGestureRecognizer(panGestureRecognizer)
         pageViewController.view.addGestureRecognizer(singleTapGestureRecognizer)
         
@@ -197,10 +214,10 @@ open private(set) var downloadIndicatorMainView: UIView!
             downloadIndicatorMainView.frame = view.bounds
             downloadIndicatorMainView.backgroundColor = UIColor.clear
             view.addSubview(downloadIndicatorMainView)
-            
+
         }
 
-    
+
     open override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
@@ -224,7 +241,7 @@ open private(set) var downloadIndicatorMainView: UIView!
     private func setupPageViewControllerWithInitialPhoto(_ initialPhoto: INSPhotoViewable? = nil) {
         pageViewController = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal, options: [UIPageViewControllerOptionInterPageSpacingKey: 16.0])
         pageViewController.view.backgroundColor = UIColor.clear
-        
+
         pageViewController.delegate = self
         pageViewController.dataSource = self
         
@@ -253,12 +270,12 @@ open private(set) var downloadIndicatorMainView: UIView!
      - parameter photo:    The photo to make the currently displayed photo.
      - parameter animated: Whether to animate the transition to the new photo.
      */
-    open func changeToPhoto(_ photo: INSPhotoViewable, animated: Bool) {
+    open func changeToPhoto(_ photo: INSPhotoViewable, animated: Bool, direction: UIPageViewControllerNavigationDirection = .forward) {
         if !dataSource.containsPhoto(photo) {
             return
         }
         let photoViewController = initializePhotoViewControllerForPhoto(photo)
-        pageViewController.setViewControllers([photoViewController], direction: .forward, animated: animated, completion: nil)
+        pageViewController.setViewControllers([photoViewController], direction: direction, animated: animated, completion: nil)
         updateCurrentPhotosInformation()
     }
     
@@ -278,6 +295,26 @@ open private(set) var downloadIndicatorMainView: UIView!
         overlayView.setHidden(!overlayView.view().isHidden, animated: true)
     }
     
+    // MARK: - Target Actions
+
+    open func handleDeleteButtonTapped(){
+        if let currentPhoto = self.currentPhoto {
+            if let currentPhotoIndex = self.dataSource.indexOfPhoto(currentPhoto) {
+                self.dataSource.deletePhoto(currentPhoto)
+                self.deletePhotoHandler?(currentPhoto)
+                if let photo = newCurrentPhotoAfterDeletion(currentPhotoIndex: currentPhotoIndex) {
+                    if currentPhotoIndex == self.dataSource.numberOfPhotos {
+                        self.changeToPhoto(photo, animated: true, direction: .reverse)
+                    }else{
+                        self.changeToPhoto(photo, animated: true)
+                    }
+                }else{
+                    self.dismiss(animated: true, completion: nil)
+                }
+            }
+        }
+    }
+
     // MARK: - View Controller Dismissal
     
     open override func dismiss(animated flag: Bool, completion: (() -> Void)?) {
