@@ -34,7 +34,11 @@ class ViewController: UIViewController {
         downloadView.backgroundColor = UIColor.red
         for photo in photos {
             if let photo = photo as? INSPhoto {
-                photo.attributedTitle = NSAttributedString(string: "Example tgtgtgtgt text\ncaption text", attributes: [NSForegroundColorAttributeName: UIColor.white])
+                #if swift(>=4.0)
+                    photo.attributedTitle = NSAttributedString(string: "Example caption text\ncaption text", attributes: [NSAttributedStringKey.foregroundColor: UIColor.white])
+                #else
+                    photo.attributedTitle = NSAttributedString(string: "Example caption text\ncaption text", attributes: [NSForegroundColorAttributeName: UIColor.white])
+                #endif
             }
         }
     }

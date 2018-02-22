@@ -92,16 +92,16 @@ open class INSPhotosViewController: UIViewController, UIPageViewControllerDataSo
     }
     
     // MARK: - Private
-    private(set) var pageViewController: UIPageViewController!
-    private(set) var dataSource: INSPhotosDataSource
+    public private(set) var pageViewController: UIPageViewController!
+    public private(set) var dataSource: INSPhotosDataSource
     
-    let interactiveAnimator: INSPhotosInteractionAnimator = INSPhotosInteractionAnimator()
-    let transitionAnimator: INSPhotosTransitionAnimator = INSPhotosTransitionAnimator()
+    public let interactiveAnimator: INSPhotosInteractionAnimator = INSPhotosInteractionAnimator()
+    public let transitionAnimator: INSPhotosTransitionAnimator = INSPhotosTransitionAnimator()
     
-    private(set) lazy var singleTapGestureRecognizer: UITapGestureRecognizer = {
+    public private(set) lazy var singleTapGestureRecognizer: UITapGestureRecognizer = {
         return UITapGestureRecognizer(target: self, action: #selector(INSPhotosViewController.handleSingleTapGestureRecognizer(_:)))
     }()
-    private(set) lazy var panGestureRecognizer: UIPanGestureRecognizer = {
+    public private(set) lazy var panGestureRecognizer: UIPanGestureRecognizer = {
         return UIPanGestureRecognizer(target: self, action: #selector(INSPhotosViewController.handlePanGestureRecognizer(_:)))
     }()
     
@@ -178,7 +178,11 @@ open class INSPhotosViewController: UIViewController, UIPageViewControllerDataSo
         let textColor = view.tintColor ?? UIColor.white
         if let overlayView = overlayView as? INSPhotosOverlayView {
             overlayView.photosViewController = self
-            overlayView.titleTextAttributes = [NSForegroundColorAttributeName: textColor]
+            #if swift(>=4.0)
+                overlayView.titleTextAttributes = [NSAttributedStringKey.foregroundColor: textColor]
+            #else
+                overlayView.titleTextAttributes = [NSForegroundColorAttributeName: textColor]
+            #endif
         }
     }
     open func hiddenDownloadView() {
@@ -227,10 +231,10 @@ open private(set) var downloadIndicatorMainView: UIView!
         UIView.animate(withDuration: 0.25) { () -> Void in
             self.setNeedsStatusBarAppearanceUpdate()
         }
+        updateCurrentPhotosInformation()
     }
     
     private func setupOverlayView() {
-        updateCurrentPhotosInformation()
         
         overlayView.view().autoresizingMask = [.flexibleWidth, .flexibleHeight]
         overlayView.view().frame = view.bounds
@@ -353,7 +357,7 @@ open private(set) var downloadIndicatorMainView: UIView!
     
     // MARK: - UIPageViewControllerDataSource / UIPageViewControllerDelegate
 
-    private func initializePhotoViewControllerForPhoto(_ photo: INSPhotoViewable) -> INSPhotoViewController {
+    public func initializePhotoViewControllerForPhoto(_ photo: INSPhotoViewable) -> INSPhotoViewController {
         let photoViewController = INSPhotoViewController(photo: photo)
         photoViewController.downloadView = downloadMainView
         singleTapGestureRecognizer.require(toFail: photoViewController.doubleTapGestureRecognizer)
